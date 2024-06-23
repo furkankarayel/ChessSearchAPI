@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"log"
 	"os/exec"
 )
 
@@ -17,8 +18,9 @@ func NewRunner(executable string) *Runner {
 // Run executes the command with given arguments/flags
 func (cw *Runner) Run(args ...string) (string, error) {
 	cmd := exec.Command(cw.Executable, args...)
-	output, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
+		log.Printf("Command execution failed: %v\nOutput: %s", err, output)
 		return "", err
 	}
 	return string(output), nil
