@@ -4,7 +4,7 @@ import (
 	"os/exec"
 )
 
-// Runner struct to hold any state or configuration
+// Runner struct to hold the path to executable
 type Runner struct {
 	Executable string
 }
@@ -14,7 +14,7 @@ func NewRunner(executable string) *Runner {
 	return &Runner{Executable: executable}
 }
 
-// Run executes the command with given arguments
+// Run executes the command with given arguments/flags
 func (cw *Runner) Run(args ...string) (string, error) {
 	cmd := exec.Command(cw.Executable, args...)
 	output, err := cmd.Output()
@@ -22,14 +22,4 @@ func (cw *Runner) Run(args ...string) (string, error) {
 		return "", err
 	}
 	return string(output), nil
-}
-
-// Example function to run echo with a message
-func (cw *Runner) Echo(message string) (string, error) {
-	return cw.Run(message)
-}
-
-// Example function to run echo with additional flags
-func (cw *Runner) EchoWithFlags(flags ...string) (string, error) {
-	return cw.Run(flags...)
 }
