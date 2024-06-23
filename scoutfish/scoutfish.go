@@ -38,7 +38,7 @@ func (s *Scoutfish) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func (u *Scoutfish) home(w http.ResponseWriter, r *http.Request) {
-	result, err := helper.NewRunner("../bin/scoutfish/src/scoutfish scout ../pgn/LumbrasGigaBase-1899.scout '{\"sub-fen\": \"r1bqkb1r/pppp1ppp/2n2n2/4p1N1/2B1P3/8/PPPP1PPP/RNBQK2R b KQkq - 0 1\"}'").Run()
+	result, err := helper.NewRunner("../bin/scoutfish/src/scoutfish").Run("scout ../pgn/LumbrasGigaBase-1899.scout '{\"sub-fen\": \"r1bqkb1r/pppp1ppp/2n2n2/4p1N1/2B1P3/8/PPPP1PPP/RNBQK2R b KQkq - 0 1\"}'")
 	if err != nil {
 		engine.Respond(w, r, http.StatusBadRequest, err)
 		return
