@@ -16,12 +16,12 @@ func NewRunner(executable string) *Runner {
 }
 
 // Run executes the command with given arguments/flags
-func (cw *Runner) Run(args ...string) (string, error) {
+func (cw *Runner) Run(args ...string) ([]byte, error) {
 	cmd := exec.Command(cw.Executable, args...)
-	output, err := cmd.CombinedOutput()
+	output, err := cmd.Output()
 	if err != nil {
 		log.Printf("Command execution failed: %v\nOutput: %s", err, output)
-		return "", err
+		return output, err
 	}
-	return string(output), nil
+	return output, nil
 }
