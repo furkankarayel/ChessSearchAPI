@@ -18,7 +18,7 @@ func NewRunner(executable string) *Runner {
 // Run executes the command with given arguments/flags
 func (cw *Runner) Run(args ...string) ([]byte, error) {
 	cmd := exec.Command(cw.Executable, args...)
-	output, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Printf("Command execution failed: %v\nOutput: %s", err, output)
 		return output, err
