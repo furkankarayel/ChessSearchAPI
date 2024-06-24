@@ -57,7 +57,7 @@ func (u *Scoutfish) test(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	engine.Respond(w, r, http.StatusOK, result)
+	engine.Respond(w, r, http.StatusOK, string(result))
 }
 
 func (u *Scoutfish) home(w http.ResponseWriter, r *http.Request) {
