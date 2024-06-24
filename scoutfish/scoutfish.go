@@ -55,7 +55,7 @@ type RunnerOutput struct {
 	Matches        []Match `json:"matches"`
 }
 
-type FenInput struct {
+type ScoutfishInput struct {
 	SubFen string `json:"sub-fen"`
 }
 
@@ -68,7 +68,7 @@ func (u *Scoutfish) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := helper.NewRunner("../bin/scoutfish/src/scoutfish").Run("scout ../pgn/LumbrasGigaBase-1899.scout", string(body))
+	result, err := helper.NewRunner("./scoutfish").Run("scout ../pgn/LumbrasGigaBase-1899.scout", string(body))
 	if err != nil {
 		engine.Respond(w, r, http.StatusBadRequest, err)
 		return
