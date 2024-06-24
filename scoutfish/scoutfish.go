@@ -6,9 +6,7 @@ import (
 	"engine/helper"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"strconv"
 )
 
 type Scoutfish struct{}
@@ -27,15 +25,8 @@ func (s *Scoutfish) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch head {
 	case "":
 		s.home(w, r)
-	case "detail":
-		head, r.URL.Path = engine.ShiftPath(r.URL.Path)
-		id, err := strconv.Atoi(head)
-		if err != nil {
-			engine.Respond(w, r, http.StatusBadRequest, err)
-			return
-		}
-		log.Println(id)
-		//parser functions to be implemented
+	case "test":
+		s.test(w, r)
 	default:
 		engine.Respond(w, r, http.StatusNotFound, "scoutfish path not found")
 	}
@@ -57,6 +48,16 @@ type RunnerOutput struct {
 
 type ScoutfishInput struct {
 	SubFen string `json:"sub-fen"`
+}
+
+func (u *Scoutfish) test(w http.ResponseWriter, r *http.Request) {
+	result, err := helper.NewRunner("./scoutfish").Run("isready")
+	if err != nil {
+		engine.Respond(w, r, http.StatusBadRequest, err)
+		return
+	}
+
+	engine.Respond(w, r, http.StatusOK, result)
 }
 
 func (u *Scoutfish) home(w http.ResponseWriter, r *http.Request) {
