@@ -3,6 +3,7 @@ package main
 import (
 	"engine"
 	"engine/scoutfish"
+	"log"
 	"net/http"
 )
 
@@ -13,6 +14,7 @@ func main() {
 
 	svr := engine.New(topLevelRoutes)
 	http.ListenAndServe(":8080", svr)
+	log.Println("Server is running")
 }
 
 // func ExecCommand(cmdArgs []string) []byte {

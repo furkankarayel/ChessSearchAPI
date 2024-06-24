@@ -51,7 +51,7 @@ type ScoutfishInput struct {
 }
 
 func (u *Scoutfish) test(w http.ResponseWriter, r *http.Request) {
-	result, err := helper.NewRunner("./scoutfish").Run("isready")
+	result, err := helper.NewRunner("/app/scoutfish").Run("isready")
 	if err != nil {
 		engine.Respond(w, r, http.StatusBadRequest, err)
 		return
@@ -69,7 +69,7 @@ func (u *Scoutfish) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := helper.NewRunner("./scoutfish").Run("scout ../pgn/LumbrasGigaBase-1899.scout", string(body))
+	result, err := helper.NewRunner("/app/scoutfish").Run("scout /app/pgn/LumbrasGigaBase-1899.scout", string(body))
 	if err != nil {
 		engine.Respond(w, r, http.StatusBadRequest, err)
 		return
