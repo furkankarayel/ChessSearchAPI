@@ -4,7 +4,7 @@ FROM golang:1.18 as go-builder
 # Set the working directory for Go build
 WORKDIR /app
 
-# Copy the Go module files and download dependencies
+# Copy the Go module files and download dependencies it's like package.json for Go
 COPY go.mod ./
 RUN go mod download
 
@@ -16,9 +16,8 @@ RUN go test -v ./...
 # Change to the cmd directory (that's like a cd in terminal) 
 # and build the Go project
 WORKDIR /app/cmd
+
 RUN go build -o /parser-service
-
-
 
 # Stage 2: Build stage for C++ program
 FROM gcc:14 as cpp-builder
