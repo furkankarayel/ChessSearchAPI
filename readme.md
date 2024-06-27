@@ -27,7 +27,7 @@ to run it we run the following command which maps the host port to container por
 
 `docker run -p 8080:8080 -it parser-service`
 
-
+After this go into your browser type localhost:8080 and you should be able to see a message of our service.
 
 ## Dockerfile Notes
 
