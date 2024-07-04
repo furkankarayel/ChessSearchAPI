@@ -1,8 +1,9 @@
 .vscode
 
 # ignore all files that are built already
-bin/scoutfish/src/scoutfish
-bin/scoutfish/pgn
-bin/pgn-extract
+bin/scoutfish/
+bin/pgn-extract/
+
 *.o
+
 
