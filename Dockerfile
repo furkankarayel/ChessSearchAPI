@@ -19,21 +19,43 @@ WORKDIR /app/cmd
 
 RUN go build -o /parser-service
 
-# Stage 2: Build stage for C++ program
-FROM gcc:14 as cpp-builder
+# Stage 2: Get sources to build
+FROM alpine:3.19.0 AS source-pull
 
 # Set the working directory for C++ build
 WORKDIR /cpp-app
 
-# Copy the C++ source code into /cpp-app
-COPY bin/scoutfish/src .
+# Install dependencies
+RUN apk update && \
+    apk add git 
 
-# Determine the architecture type and compile the C++ program
-RUN  make build ARCH=x86-64
+# Pull pgn-extract and build binary
+RUN git clone https://github.com/MichaelB7/pgn-extract.git 
+
+
+# Pull scoutfish and build binary
+RUN git clone https://github.com/mcostalba/scoutfish.git 
+
+# Stage 3: Executable build stage
+FROM gcc:14 AS cpp-builder
+
+WORKDIR /cpp-app
+
+COPY --from=source-pull /cpp-app/scoutfish /cpp-app/scoutfish
+COPY --from=source-pull /cpp-app/pgn-extract /cpp-app/pgn-extract
+
+# Pull pgn-extract and build binary
+RUN cd pgn-extract/src && \
+        make 
+
+
+# Pull scoutfish and build binary
+RUN cd scoutfish/src && \
+        make build ARCH=x86-64
+
 
 # Stage 3: Run stage
 FROM gcc:14
-
 
 
 # Set the working directory for running the Go binary
@@ -42,7 +64,9 @@ WORKDIR /app
 # Copy all dependencies from the builder stage for the parser service
 COPY --from=go-builder /parser-service /parser-service
 COPY --from=go-builder /app/pgn /app/pgn
-COPY --from=cpp-builder /cpp-app/scoutfish /app/scoutfish
+
+COPY --from=cpp-builder /cpp-app/scoutfish/src/scoutfish /app/scoutfish
+COPY --from=cpp-builder /cpp-app/pgn-extract/src/pgn-extract /app/pgn-extract
 
 EXPOSE 8080
 
