@@ -8,7 +8,7 @@ import (
 )
 
 func (u *ScoutfishHandler) test(w http.ResponseWriter, r *http.Request) {
-	s := wrappers.NewDefault()
+	s := wrappers.DefaultScoutfish()
 
 	result, err := s.IsReady()
 	if err != nil {
@@ -23,7 +23,7 @@ func (u *ScoutfishHandler) home(w http.ResponseWriter, r *http.Request) {
 	// jsonString := `{"sub-fen": "r1bqkb1r/pppp1ppp/2n2n2/4p1N1/2B1P3/8/PPPP1PPP/RNBQK2R b KQkq - 0 1"}`
 
 	// Initialize Scoutfish with default settings
-	s := wrappers.NewDefault()
+	s := wrappers.DefaultScoutfish()
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {

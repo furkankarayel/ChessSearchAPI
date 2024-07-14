@@ -2,6 +2,7 @@ package main
 
 import (
 	"engine"
+	pgnextract "engine/pgn-extract"
 	"engine/scoutfish"
 	"log"
 	"net/http"
@@ -11,6 +12,7 @@ func main() {
 	topLevelRoutes := make(map[string]*engine.Route)
 
 	topLevelRoutes["scoutfish"] = scoutfish.New()
+	topLevelRoutes["pgnextract"] = pgnextract.New()
 
 	svr := engine.New(topLevelRoutes)
 	http.ListenAndServe(":8080", svr)

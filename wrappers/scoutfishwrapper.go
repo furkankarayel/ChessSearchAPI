@@ -35,12 +35,12 @@ type Scoutfish struct {
 }
 
 // Our default wrapper initialization that is being used during the development process
-func NewDefault() *Scoutfish {
+func DefaultScoutfish() *Scoutfish {
 	return &Scoutfish{Runner: helper.NewRunner("/app/scoutfish"), Db: "/app/pgn/LumbrasGigaBase-1899.scout", Pgn: "/app/pgn/LumbrasGigaBase-1899.pgn"}
 }
 
 // Wrapper initialization that allows you to choose custom pgn file
-func NewWrapper(db string, pgn string) *Scoutfish {
+func NewScoutfish(db string, pgn string) *Scoutfish {
 	return &Scoutfish{Runner: helper.NewRunner("/app/scoutfish"), Db: fmt.Sprintf("/app/pgn/%s.pgn", db), Pgn: fmt.Sprintf("/app/pgn/%s.pgn", pgn)}
 }
 
