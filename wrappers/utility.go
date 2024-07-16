@@ -1,7 +1,6 @@
 package wrappers
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 )
@@ -20,7 +19,7 @@ type PGN struct {
 	PlyCount  string `json:"PlyCount"`
 	Source    string `json:"Source"`
 	EventType string `json:"EventType"`
-	Moves     string `json:"Moves"`
+	Board     string `json:"Board"`
 }
 
 // ParseMetadata parses metadata from a PGN block
@@ -34,18 +33,18 @@ func ParseMetadata(game string) map[string]string {
 	return gameMap
 }
 
-// ParseMoves parses moves from a PGN block
-func ParseMoves(game string) string {
+// ParseBoard parses board from a PGN block
+func ParseBoard(game string) string {
 	lines := strings.Split(game, "\n")
-	movesStarted := false
-	var moves []string
+	boardStarted := false
+	var board []string
 
 	for _, line := range lines {
-		// Identify the start of the moves by checking for move number
-		if !movesStarted && strings.HasPrefix(line, "1.") {
-			movesStarted = true
+		// Identify the start of the board by checking for move number
+		if !boardStarted && strings.HasPrefix(line, "1.") {
+			boardStarted = true
 		}
-		if movesStarted {
+		if boardStarted {
 			trimmedLine := strings.TrimSpace(line)
 			if trimmedLine == "" {
 				continue
@@ -53,14 +52,14 @@ func ParseMoves(game string) string {
 			if strings.HasPrefix(trimmedLine, "[") {
 				break
 			}
-			moves = append(moves, trimmedLine)
+			board = append(board, trimmedLine)
 		}
 	}
-	return strings.Join(moves, " ")
+	return strings.Join(board, " ")
 }
 
 // CreatePGNStruct creates a PGN struct from parsed data
-func CreatePGNStruct(gameMap map[string]string, moves string) PGN {
+func CreatePGNStruct(gameMap map[string]string, board string) PGN {
 	return PGN{
 		Event:     gameMap["Event"],
 		Site:      gameMap["Site"],
@@ -74,7 +73,7 @@ func CreatePGNStruct(gameMap map[string]string, moves string) PGN {
 		PlyCount:  gameMap["PlyCount"],
 		Source:    gameMap["Source"],
 		EventType: gameMap["EventType"],
-		Moves:     moves,
+		Board:     board,
 	}
 }
 
@@ -86,14 +85,12 @@ func ParsePGN(inputData string) ([]PGN, error) {
 	var pgnList []PGN
 
 	for i, game := range games {
-
-		fmt.Println(fmt.Sprintf("############# %d %s", i, game))
 		if i > 0 {
 			game = "[Event " + game // Add the [Event tag back to the beginning of each game except the first one
 		}
 		gameMap := ParseMetadata(game)
-		moves := ParseMoves(game)
-		pgn := CreatePGNStruct(gameMap, moves)
+		board := ParseBoard(game)
+		pgn := CreatePGNStruct(gameMap, board)
 		pgnList = append(pgnList, pgn)
 	}
 

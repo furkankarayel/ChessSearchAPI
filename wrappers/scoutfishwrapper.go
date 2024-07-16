@@ -12,7 +12,7 @@ import (
 type Match struct {
 	Ofs   int    `json:"ofs"`
 	Ply   []int  `json:"ply"`
-	Moves string `json:"moves"`
+	Board string `json:"board"`
 }
 
 // RunnerOutput represents the JSON structure of the command output
