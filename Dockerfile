@@ -1,5 +1,5 @@
 # Stage 1: Build stage for Go project
-FROM golang:1.18 as go-builder
+FROM golang:1.18 AS go-builder
 
 # Set the working directory for Go build
 WORKDIR /app
@@ -67,6 +67,7 @@ COPY --from=go-builder /app/pgn /app/pgn
 
 COPY --from=cpp-builder /cpp-app/scoutfish/src/scoutfish /app/scoutfish
 COPY --from=cpp-builder /cpp-app/pgn-extract/src/pgn-extract /app/pgn-extract
+
 
 EXPOSE 8080
 

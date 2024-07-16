@@ -1,6 +1,7 @@
 package wrappers
 
 import (
+	"encoding/json"
 	"engine/helper"
 	"fmt"
 	"log"
@@ -10,6 +11,10 @@ type Pgnextract struct {
 	Runner *helper.Runner
 	Db     string
 	Pgn    string
+}
+
+type PgnInput struct {
+	Fen string
 }
 
 // Our default wrapper initialization that is being used during the development process
@@ -31,19 +36,32 @@ func (p *Pgnextract) IsReady() ([]byte, error) {
 	return result, nil
 }
 
-func (p *Pgnextract) QueryFen(input []byte) (*RunnerOutput, error) {
-	result, err := p.Runner.Run(fmt.Sprintf("-fen %s %s", string(input), p.Db))
+func (p *Pgnextract) QueryFen(input []byte) ([]PGN, error) {
+	var jsonInput PgnInput
+	err := json.Unmarshal(input, &jsonInput)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("Error parsing input:", err)
 		return nil, err
 	}
 
-	log.Println(result)
+	_, err = p.Runner.Run("-t /app/pgn/pgn-test-command", p.Pgn, "--output", "lastOutput")
+	if err != nil {
+		log.Println("Error finding FEN:", err)
+		return nil, err
+	}
 
-	// err = json.Unmarshal([]byte(result), &output)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// 	return nil, err
-	// }
-	return nil, nil
+	p.Runner.Executable = "cat"
+	readOutput, err := p.Runner.Run("lastOutput")
+	if err != nil {
+		log.Println("Error finding FEN:", err)
+		return nil, err
+	}
+
+	pgnList, err := ParsePGN(string(readOutput))
+	if err != nil {
+		fmt.Println("Error parsing PGN:", err)
+		return nil, err
+	}
+
+	return pgnList, nil
 }
