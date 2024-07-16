@@ -65,3 +65,13 @@ func (p *Pgnextract) QueryFen(input []byte) ([]PGN, error) {
 
 	return pgnList, nil
 }
+
+//TODO Search for player: first name
+
+//TODO Search for player: full name
+
+//TODO Search for two specific players
+
+//TODO Search for two specific players where only 1 player won
+
+// TODO criteria builder which is writing the commands into a file, that is going to be used for executing queries

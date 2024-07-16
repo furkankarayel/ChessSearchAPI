@@ -121,3 +121,9 @@ func (s *Scoutfish) GetGames(matches []Match) ([]PGN, error) {
 	return pgnList, nil
 
 }
+
+//TODO Searching for specific fen positions
+
+//TODO Search for an arbitrary chess position where the pieces can be anywhere on the board
+
+// TODO criteria builder which is writing the commands into a file, that is going to be used for executing queries
