@@ -53,3 +53,6 @@ func Test_Scoutfish_Search_Arbitrary_Position(t *testing.T) {
 	}
 
 }
+
+// TODO tests need to be specified, they're not good enough to check if valid information are given back.
+// Currently they only check if any response bigger than 1 Byte is given back. Valid responses were checked manually
