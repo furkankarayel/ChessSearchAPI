@@ -41,3 +41,5 @@ func (u *ScoutfishHandler) home(w http.ResponseWriter, r *http.Request) {
 
 	engine.Respond(w, r, http.StatusOK, output)
 }
+
+// TODO adding new wrapper functions to handler
