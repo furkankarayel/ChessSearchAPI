@@ -1,4 +1,4 @@
-package wrappers
+package scoutfish
 
 import (
 	"bufio"
@@ -15,8 +15,8 @@ type Match struct {
 	Board string `json:"board"`
 }
 
-// RunnerOutput represents the JSON structure of the command output
-type RunnerOutput struct {
+// MetaData represents the JSON of the game data
+type MetaData struct {
 	Moves          int     `json:"moves"`
 	MatchCount     int     `json:"match count"`
 	MovesPerSecond int     `json:"moves/second"`
@@ -37,7 +37,12 @@ func DefaultScoutfish() *Scoutfish {
 
 // Wrapper initialization that allows you to choose custom pgn file
 func NewScoutfish(db string, pgn string) *Scoutfish {
-	return &Scoutfish{Runner: helper.NewRunner("/app/scoutfish"), Db: fmt.Sprintf("/app/pgn/%s.pgn", db), Pgn: fmt.Sprintf("/app/pgn/%s.pgn", pgn)}
+	return &Scoutfish{Runner: helper.NewRunner("/app/scoutfish"), Db: fmt.Sprintf("/app/pgn/%s.scout", db), Pgn: fmt.Sprintf("/app/pgn/%s.pgn", pgn)}
+}
+
+// Wrapper initialization for tests that allows you to pass binary, scout and pgn file
+func TestScoutfish(binary string, db string, pgn string) *Scoutfish {
+	return &Scoutfish{Runner: helper.NewRunner(binary), Db: db, Pgn: pgn}
 }
 
 func (s *Scoutfish) IsReady() ([]byte, error) {
@@ -48,25 +53,20 @@ func (s *Scoutfish) IsReady() ([]byte, error) {
 	return result, nil
 }
 
-func (s *Scoutfish) ScoutRaw(input []byte) (*RunnerOutput, error) {
+func (s *Scoutfish) QueryFen(input []byte) ([]helper.PGN, error) {
 	result, err := s.Runner.Run(fmt.Sprintf("scout %s %s", s.Db, string(input)))
 	if err != nil {
-		log.Fatal(err)
-		return nil, err
+		panic(err)
 	}
 
-	var output RunnerOutput
+	var data MetaData
 
-	err = json.Unmarshal([]byte(result), &output)
+	err = json.Unmarshal([]byte(result), &data)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
 	}
-	return &output, nil
 
-}
-
-func (s *Scoutfish) GetGames(matches []Match) ([]PGN, error) {
 	if len(s.Pgn) == 0 {
 		log.Fatal("PGN File not found..")
 		return nil, nil
@@ -80,7 +80,7 @@ func (s *Scoutfish) GetGames(matches []Match) ([]PGN, error) {
 	defer file.Close()
 
 	output := ""
-	for _, match := range matches {
+	for _, match := range data.Matches {
 		// Seek to the specified offset
 		_, err := file.Seek(int64(match.Ofs), 0)
 		if err != nil {
@@ -112,7 +112,7 @@ func (s *Scoutfish) GetGames(matches []Match) ([]PGN, error) {
 		output += game + "\n\n" // Separate games with a double newline
 	}
 
-	pgnList, err := ParsePGN(output)
+	pgnList, err := helper.ParsePGN(output)
 	if err != nil {
 		fmt.Println("Error parsing PGN:", err)
 		return nil, err
