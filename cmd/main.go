@@ -15,7 +15,8 @@ func main() {
 	topLevelRoutes["pgnextract"] = pgnextract.New()
 
 	svr := engine.New(topLevelRoutes)
-	http.ListenAndServe(":8080", svr)
+	err := http.ListenAndServe(":8080", svr)
+	log.Println(err)
 	log.Println("Server is running")
 }
 

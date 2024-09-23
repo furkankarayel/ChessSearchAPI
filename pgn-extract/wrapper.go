@@ -1,13 +1,15 @@
 package pgnextract
 
 import (
-	"encoding/json"
 	"engine/helper"
 	"fmt"
 	"log"
 	"os"
+	"strings"
+	"unsafe"
 
 	"github.com/google/uuid"
+	jsoniter "github.com/json-iterator/go"
 )
 
 type Pgnextract struct {
@@ -48,8 +50,8 @@ func (p *Pgnextract) IsReady() ([]byte, error) {
 }
 
 func (p *Pgnextract) WriteCommand(cmd string, value string) bool {
-
-	content := []byte(fmt.Sprintf("%s \"%s\"", cmd, value))
+	command := fmt.Sprintf("%s \"%s\"", cmd, value)
+	content := unsafe.Slice(unsafe.StringData(command), len(command))
 	err := os.WriteFile(p.CmdFile, content, 0644)
 	if err != nil {
 		panic(err)
@@ -57,14 +59,21 @@ func (p *Pgnextract) WriteCommand(cmd string, value string) bool {
 	return true
 }
 
+func (p *Pgnextract) PlayerCommand(name string) error {
+	if !p.WriteCommand("Player", name) {
+		return fmt.Errorf("error generating player command for pgn-extract command file")
+	}
+	return nil
+}
+
 func (p *Pgnextract) WriteMultipleCommands(cmd []string, value []string) bool {
 
-	fileInput := ""
+	var fileInput strings.Builder
 	for i := 0; i < len(cmd); i++ {
-		fileInput += fmt.Sprintf("%s \"%s\"\n", cmd[i], value[i])
+		fileInput.WriteString(fmt.Sprintf("%s \"%s\"\n", cmd[i], value[i]))
 	}
 
-	content := []byte(fileInput)
+	content := unsafe.Slice(unsafe.StringData(fileInput.String()), len(fileInput.String()))
 
 	err := os.WriteFile(p.CmdFile, content, 0644)
 	if err != nil {
@@ -76,15 +85,16 @@ func (p *Pgnextract) WriteMultipleCommands(cmd []string, value []string) bool {
 // Querying Player name Input
 func (p *Pgnextract) QueryPlayer(input []byte) ([]helper.PGN, error) {
 	var jsonInput PgnInput
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	err := json.Unmarshal(input, &jsonInput)
 	if err != nil {
 		log.Println("Error parsing input:", err)
 		return nil, err
 	}
 
-	if !p.WriteCommand("Player", jsonInput.Player) {
-		log.Println("Error generating pgn-extract command file:", err)
-		return nil, err
+	playerErr := p.PlayerCommand(jsonInput.Player)
+	if playerErr != nil {
+		return nil, playerErr
 	}
 
 	// Generate a UUID for the temporary output file name
@@ -125,6 +135,7 @@ func (p *Pgnextract) QueryPlayer(input []byte) ([]helper.PGN, error) {
 // Querying Player name Input
 func (p *Pgnextract) QueryTwoPlayers(input []byte) ([]helper.PGN, error) {
 	var jsonInput PgnInput
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	err := json.Unmarshal(input, &jsonInput)
 	if err != nil {
 		log.Println("Error parsing input:", err)
@@ -176,14 +187,13 @@ func (p *Pgnextract) QueryTwoPlayers(input []byte) ([]helper.PGN, error) {
 // Querying Player name Input
 func (p *Pgnextract) QueryPlayerByYear(input []byte) ([]helper.PGN, error) {
 	var jsonInput PgnInput
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	err := json.Unmarshal(input, &jsonInput)
 	if err != nil {
 		log.Println("Error parsing input:", err)
 		return nil, err
 	}
 
-	fmt.Print(jsonInput.Player)
-	fmt.Print(jsonInput.Year)
 	// Writing commands to query player and date
 	if !p.WriteMultipleCommands([]string{"Player", "Date"}, []string{string(jsonInput.Player), string(jsonInput.Year)}) {
 		log.Println("Error generating pgn-extract command file:", err)
@@ -228,13 +238,14 @@ func (p *Pgnextract) QueryPlayerByYear(input []byte) ([]helper.PGN, error) {
 // Querying FEN Input
 func (p *Pgnextract) QueryFen(input []byte) ([]helper.PGN, error) {
 	var jsonInput PgnInput
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	err := json.Unmarshal(input, &jsonInput)
 	if err != nil {
 		log.Println("Error parsing input:", err)
 		return nil, err
 	}
 
-	if !p.WriteCommand("Player", jsonInput.Fen) {
+	if !p.WriteCommand("FEN", jsonInput.Fen) {
 		log.Println("Error generating pgn-extract command file:", err)
 		return nil, err
 	}

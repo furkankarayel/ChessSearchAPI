@@ -3,7 +3,9 @@
 # ignore all files that are built already
 bin/scoutfish/
 bin/pgn-extract/
-
 *.o
+
+# ignore files used for testing
+pgn
 
 

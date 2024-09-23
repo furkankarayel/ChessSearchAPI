@@ -2,11 +2,13 @@ package scoutfish
 
 import (
 	"bufio"
-	"encoding/json"
 	"engine/helper"
 	"fmt"
 	"log"
 	"os"
+	"strings"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 type Match struct {
@@ -32,7 +34,7 @@ type Scoutfish struct {
 
 // Our default wrapper initialization that is being used during the development process
 func DefaultScoutfish() *Scoutfish {
-	return &Scoutfish{Runner: helper.NewRunner("/app/scoutfish"), Db: "/app/pgn/LumbrasGigaBase-1899.scout", Pgn: "/app/pgn/LumbrasGigaBase-1899.pgn"}
+	return &Scoutfish{Runner: helper.NewRunner("/app/scoutfish"), Db: "/app/pgn/LumbrasGigaBase-2020.scout", Pgn: "/app/pgn/LumbrasGigaBase-2020.pgn"}
 }
 
 // Wrapper initialization that allows you to choose custom pgn file
@@ -54,6 +56,7 @@ func (s *Scoutfish) IsReady() ([]byte, error) {
 }
 
 func (s *Scoutfish) QueryFen(input []byte) ([]helper.PGN, error) {
+
 	result, err := s.Runner.Run(fmt.Sprintf("scout %s %s", s.Db, string(input)))
 	if err != nil {
 		panic(err)
@@ -61,7 +64,9 @@ func (s *Scoutfish) QueryFen(input []byte) ([]helper.PGN, error) {
 
 	var data MetaData
 
-	err = json.Unmarshal([]byte(result), &data)
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
+
+	err = json.Unmarshal(result, &data)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -79,7 +84,8 @@ func (s *Scoutfish) QueryFen(input []byte) ([]helper.PGN, error) {
 	}
 	defer file.Close()
 
-	output := ""
+	var output strings.Builder
+
 	for _, match := range data.Matches {
 		// Seek to the specified offset
 		_, err := file.Seek(int64(match.Ofs), 0)
@@ -89,7 +95,7 @@ func (s *Scoutfish) QueryFen(input []byte) ([]helper.PGN, error) {
 		}
 
 		scanner := bufio.NewScanner(file)
-		var game string
+		var game strings.Builder
 		isGameStarted := false
 		for scanner.Scan() {
 			line := scanner.Text()
@@ -98,9 +104,10 @@ func (s *Scoutfish) QueryFen(input []byte) ([]helper.PGN, error) {
 					break // Second occurrence, start of next game
 				}
 				isGameStarted = true // First occurrence
-				game = line
+				game.Reset()
+				game.WriteString(line)
 			} else if isGameStarted {
-				game += "\n" + line
+				game.WriteString("\n" + line)
 			}
 		}
 
@@ -109,10 +116,10 @@ func (s *Scoutfish) QueryFen(input []byte) ([]helper.PGN, error) {
 			return nil, err
 		}
 
-		output += game + "\n\n" // Separate games with a double newline
+		output.WriteString(game.String() + "\n\n") // Separate games with a double newline
 	}
 
-	pgnList, err := helper.ParsePGN(output)
+	pgnList, err := helper.ParsePGN(output.String())
 	if err != nil {
 		fmt.Println("Error parsing PGN:", err)
 		return nil, err
@@ -121,9 +128,3 @@ func (s *Scoutfish) QueryFen(input []byte) ([]helper.PGN, error) {
 	return pgnList, nil
 
 }
-
-//TODO Searching for specific fen positions
-
-//TODO Search for an arbitrary chess position where the pieces can be anywhere on the board
-
-// TODO criteria builder which is writing the commands into a file, that is going to be used for executing queries
