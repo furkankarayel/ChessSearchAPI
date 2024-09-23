@@ -1,6 +1,6 @@
-# Parser Service
+# ChessSearchAPI
 ## Description
-The core service which is responsible for querying datasets of chess games efficiently. It provides an interface to Scoutfish and pgn-extract, which allow querying based on different criteria.
+This is an API which is responsible for querying pgn databases of chess games efficiently. It provides an interface to Scoutfish and Pgn-extract, which allow querying based on different criteria.
 
 ## Dockerfile Explanation
 
