@@ -2,7 +2,7 @@ package main
 
 import (
 	"engine"
-	pgnextract "engine/pgn-extract"
+	"engine/pgnextract"
 	"engine/scoutfish"
 	"log"
 	"net/http"
