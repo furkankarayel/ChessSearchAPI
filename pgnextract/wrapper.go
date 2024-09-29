@@ -25,14 +25,9 @@ type PgnInput struct {
 	Year    string
 }
 
-// Our default wrapper initialization that is being used during the development process
-func DefaultPgnextract() *Pgnextract {
-	return &Pgnextract{Runner: helper.NewRunner("/app/pgn-extract"), Pgn: "/app/pgn/LumbrasGigaBase-1899.pgn"}
-}
-
 // Wrapper initialization that allows you to choose custom pgn file
-func NewPgnextract(db string, pgn string) *Pgnextract {
-	return &Pgnextract{Runner: helper.NewRunner("/app/pgn-extract"), Pgn: fmt.Sprintf("/app/pgn/%s.pgn", pgn)}
+func NewPgnextract(pgn string) *Pgnextract {
+	return &Pgnextract{Runner: helper.NewRunner("/app/pgn-extract"), Pgn: fmt.Sprintf("/app/pgn/%s.pgn", pgn), CmdFile: "../pgn/pgn-extract-cmd"}
 }
 
 // Wrapper initialization for tests that allows you to pass binary and pgn file

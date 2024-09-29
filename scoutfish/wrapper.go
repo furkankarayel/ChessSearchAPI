@@ -38,8 +38,8 @@ func DefaultScoutfish() *Scoutfish {
 }
 
 // Wrapper initialization that allows you to choose custom pgn file
-func NewScoutfish(db string, pgn string) *Scoutfish {
-	return &Scoutfish{Runner: helper.NewRunner("/app/scoutfish"), Db: fmt.Sprintf("/app/pgn/%s.scout", db), Pgn: fmt.Sprintf("/app/pgn/%s.pgn", pgn)}
+func NewScoutfish(pgnName string) *Scoutfish {
+	return &Scoutfish{Runner: helper.NewRunner("/app/scoutfish"), Db: fmt.Sprintf("/app/pgn/%s.scout", pgnName), Pgn: fmt.Sprintf("/app/pgn/%s.pgn", pgnName)}
 }
 
 // Wrapper initialization for tests that allows you to pass binary, scout and pgn file

@@ -5,13 +5,16 @@ import (
 	"net/http"
 )
 
-type ScoutfishHandler struct{}
+type ScoutfishHandler struct {
+	scoutfish *Scoutfish
+}
 
 func New() *engine.Route {
-	scoutfish := &ScoutfishHandler{}
+	scoutfishInstance := NewScoutfish("LumbrasGigaBase-2020")
+	scoutfishHandler := &ScoutfishHandler{scoutfish: scoutfishInstance}
 	return &engine.Route{
 		WithLogger: true,
-		Handler:    scoutfish,
+		Handler:    scoutfishHandler,
 	}
 }
 
