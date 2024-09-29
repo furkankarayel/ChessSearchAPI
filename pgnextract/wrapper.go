@@ -25,12 +25,10 @@ type PgnInput struct {
 	Year    string
 }
 
-// Wrapper initialization that allows you to choose custom pgn file
 func NewPgnextract(pgn string) *Pgnextract {
 	return &Pgnextract{Runner: helper.NewRunner("/app/pgn-extract"), Pgn: fmt.Sprintf("/app/pgn/%s.pgn", pgn), CmdFile: "../pgn/pgn-extract-cmd"}
 }
 
-// Wrapper initialization for tests that allows you to pass binary and pgn file
 func TestPgnextract(binary string, pgn string, cmdFile string) *Pgnextract {
 	return &Pgnextract{Runner: helper.NewRunner(binary), Pgn: pgn, CmdFile: cmdFile}
 }
@@ -77,7 +75,6 @@ func (p *Pgnextract) WriteMultipleCommands(cmd []string, value []string) bool {
 	return true
 }
 
-// Querying Player name Input
 func (p *Pgnextract) QueryPlayer(input []byte) ([]helper.PGN, error) {
 	var jsonInput PgnInput
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
