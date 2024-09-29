@@ -1,44 +1,41 @@
 package pgnextract
 
 import (
+	"encoding/json"
 	"engine"
-	"io/ioutil"
+	"fmt"
 	"net/http"
 )
 
-// Specific approach to run a test for pgn-extract as it doesn't have any built in check functionality
-func (u *PgnextracthHandler) test(w http.ResponseWriter, r *http.Request) {
-	p := DefaultPgnextract()
-
-	result, err := p.IsReady()
-	if err != nil {
-		engine.Respond(w, r, http.StatusBadRequest, err)
-		return
-	}
-	// do nothing, solution to declared and not used error
-	_ = result
-
-	engine.Respond(w, r, http.StatusOK, "readyok")
+type PlayerRequest struct {
+	Name string `json:"name"`
 }
 
-func (u *PgnextracthHandler) home(w http.ResponseWriter, r *http.Request) {
-	// jsonString := `{"sub-fen": "r1bqkb1r/pppp1ppp/2n2n2/4p1N1/2B1P3/8/PPPP1PPP/RNBQK2R b KQkq - 0 1"}`
-
-	// Initialize Scoutfish with default settings
-	p := DefaultPgnextract()
-
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		engine.Respond(w, r, http.StatusBadRequest, err)
+func (u *PgnextracthHandler) searchPlayer(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		engine.Respond(w, r, http.StatusMethodNotAllowed, "Invalid request method")
 		return
 	}
 
-	// Using the input json to get the offsets of the games
-	output, err := p.QueryFen(body)
+	var playerReq PlayerRequest
+	err := json.NewDecoder(r.Body).Decode(&playerReq)
 	if err != nil {
-		engine.Respond(w, r, http.StatusBadRequest, err)
+		engine.Respond(w, r, http.StatusBadRequest, "Internal server error")
 		return
 	}
 
+	playerName := playerReq.Name
+	playerInput := fmt.Sprintf(`{"player": "%s"}`, playerName)
+
+	// Using the player name input as JSON to get the games
+	output, err := u.pgnextract.QueryPlayer([]byte(playerInput))
+	if err != nil {
+		engine.Respond(w, r, http.StatusBadRequest, fmt.Sprintf("Unexpected error when querying player by first name: %s", err))
+	}
+
+	// Ensure there are PGN entries returned
+	if len(output) == 0 {
+		engine.Respond(w, r, http.StatusBadRequest, fmt.Sprintf("Expected to find PGN entries for player with first name '%s', but got none.", playerInput))
+	}
 	engine.Respond(w, r, http.StatusOK, output)
 }
