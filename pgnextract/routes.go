@@ -24,9 +24,13 @@ func (p *PgnextracthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	head, r.URL.Path = engine.ShiftPath(r.URL.Path)
 	switch head {
 	case "":
-
+		engine.Respond(w, r, http.StatusOK, "Welcome to PGN Extract API")
 	case "player":
 		p.searchPlayer(w, r)
+	case "players":
+		p.searchTwoPlayers(w, r)
+	case "player-year":
+		p.searchPlayerByYear(w, r)
 	default:
 		engine.Respond(w, r, http.StatusNotFound, "pgn-extract path not found")
 	}

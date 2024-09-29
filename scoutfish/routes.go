@@ -23,9 +23,11 @@ func (s *ScoutfishHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	head, r.URL.Path = engine.ShiftPath(r.URL.Path)
 	switch head {
 	case "":
-		s.home(w, r)
-	case "test":
-		s.test(w, r)
+		engine.Respond(w, r, http.StatusOK, "Welcome to Scoutfish API")
+	case "fen":
+		s.searchByFen(w, r)
+	case "arbitrary":
+		s.searchArbitraryPosition(w, r)
 	default:
 		engine.Respond(w, r, http.StatusNotFound, "scoutfish path not found")
 	}
