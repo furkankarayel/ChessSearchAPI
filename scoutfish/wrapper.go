@@ -32,12 +32,10 @@ type Scoutfish struct {
 	Pgn    string
 }
 
-// Wrapper initialization that allows you to choose custom pgn file
 func NewScoutfish(pgnName string) *Scoutfish {
 	return &Scoutfish{Runner: helper.NewRunner("/app/scoutfish"), Db: fmt.Sprintf("/app/pgn/%s.scout", pgnName), Pgn: fmt.Sprintf("/app/pgn/%s.pgn", pgnName)}
 }
 
-// Wrapper initialization for tests that allows you to pass binary, scout and pgn file
 func TestScoutfish(binary string, db string, pgn string) *Scoutfish {
 	return &Scoutfish{Runner: helper.NewRunner(binary), Db: db, Pgn: pgn}
 }
