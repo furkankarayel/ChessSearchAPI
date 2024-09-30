@@ -2,6 +2,7 @@ package scoutfish
 
 import (
 	"engine/helper"
+	"fmt"
 	"testing"
 	"unsafe"
 )
@@ -10,8 +11,9 @@ var s *Scoutfish
 
 // Initializing the necessary specifications for all tests
 func TestMain(m *testing.M) {
-	// Initialize the global variable
-	s = TestScoutfish("../bin/scoutfish/src/scoutfish", "../pgn/LumbrasGigaBase-2020.scout", "../pgn/LumbrasGigaBase-2020.pgn")
+	// local dev test
+	// s = TestScoutfish("../bin/scoutfish/src/scoutfish", "../pgn/LumbrasGigaBase-2020.scout", "../pgn/LumbrasGigaBase-2020.pgn")
+	s = TestScoutfish("/app/scoutfish", "../pgn/LumbrasGigaBase-2020.scout", "../pgn/LumbrasGigaBase-2020.pgn")
 
 	// Run the tests
 	m.Run()
@@ -37,6 +39,7 @@ func TestScoutfishSearchFENPosition(t *testing.T) {
 	// Call the function to process the query
 	output, err := s.QueryFen(byteInput)
 	if err != nil {
+		fmt.Printf("Command execution failed: %s\n", err)
 		panic(err)
 	}
 

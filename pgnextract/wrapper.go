@@ -26,7 +26,7 @@ type PgnInput struct {
 }
 
 func NewPgnextract(pgn string) *Pgnextract {
-	return &Pgnextract{Runner: helper.NewRunner("/app/pgn-extract"), Pgn: fmt.Sprintf("/app/pgn/%s.pgn", pgn), CmdFile: "../pgn/pgn-extract-cmd"}
+	return &Pgnextract{Runner: helper.NewRunner("/app/pgn-extract"), Pgn: fmt.Sprintf("/app/pgn/%s.pgn", pgn), CmdFile: "/app/pgn/pgn-extract-cmd"}
 }
 
 func TestPgnextract(binary string, pgn string, cmdFile string) *Pgnextract {

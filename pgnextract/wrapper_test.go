@@ -9,8 +9,9 @@ var p *Pgnextract
 
 // Initializing the necessary specifications for all tests
 func TestMain(m *testing.M) {
-	// Initialize the global variable
-	p = TestPgnextract("../bin/pgn-extract/src/pgn-extract", "../pgn/LumbrasGigaBase-2020.pgn", "../pgn/pgn-extract-cmd")
+	//  local dev test
+	//  p = TestPgnextract("../bin/pgn-extract/src/pgn-extract", "../pgn/LumbrasGigaBase-2020.pgn", "../pgn/pgn-extract-cmd")
+	p = TestPgnextract("/app/pgn-extract", "../pgn/LumbrasGigaBase-2020.pgn", "../pgn/pgn-extract-cmd")
 
 	// Run the tests
 	m.Run()

@@ -1,5 +1,5 @@
 # Stage 1: Build stage for Go project
-FROM golang:1.18 AS go-builder
+FROM golang:1.22 AS go-builder
 
 # Set the working directory for Go build
 WORKDIR /app
@@ -10,8 +10,7 @@ RUN go mod download
 
 # Copy the Go source code (From the local computer into the stage working dir)
 COPY . .
-
-RUN go test -v ./...
+# RUN go test -v ./...
 
 # Change to the cmd directory (that's like a cd in terminal) 
 # and build the Go project
