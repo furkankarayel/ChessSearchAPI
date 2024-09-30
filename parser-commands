@@ -1,5 +1,0 @@
-./pgn-extract -t ./pgn/pgn-test-command ./pgn/LumbrasGigaBase-1899.pgn
-
-/app/pgn-extract -t /app/pgn/pgn-test-command /app/pgn/LumbrasGigaBase-1899.pgn
-
-and execution failed: exit status 1 Output: Unable to open /app/pgn/pgn-test-command /app/pgn/LumbrasGigaBase-1899.pgn f
