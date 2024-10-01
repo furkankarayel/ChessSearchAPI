@@ -1,20 +1,19 @@
 # ChessSearchAPI
+[![chessearchapi.webp](https://i.postimg.cc/XqD9q9T9/chessearchapi.webp)](https://postimg.cc/2Lh1XLj5)
 ## Description
-This is an API which is responsible for querying pgn databases of chess games efficiently. It provides an interface to Scoutfish and Pgn-extract, which allow querying based on different criteria.
+This project is a Golang-powered API designed to efficiently query large chess game databases stored in PGN (Portable Game Notation) format. By integrating with powerful chess tools like Scoutfish and Pgn-extract, the API provides a flexible and performant interface for querying games based on various criteria, such as player names, board positions (FEN), or game year. The API is optimized for scalability and precision, making it suitable for chess data analysis, historical research, and other chess-related applications. Development is ongoing, with continuous improvements to extend functionality and performance.
 
 ## Dockerfile Explanation
 
-For an efficient docker deployment it's necessary to split up the stages into two parts, build and run. The purpose of it is to leave behind everything you don't need when deploying the parser service. 
+For an efficient docker deployment it's necessary to split up the stages into two parts, build and run. The purpose of it is to leave behind everything you don't need when deploying the ChessSearchAPI. 
 
-However there are two necessary steps in the build stage. Compiling the go parser service itself and currently the c++ parser called Scoutfish (pgn-parser will be added soon).
+However there are four necessary steps in the build stage (Dockerfile has good comments). In summary compiling the ChessParserAPI itself, aswell as Pgn-parser and Scoutfish.
 
-For being able to build both executables, we assign them the right prebuilt docker images that provide you the needed version of your programming language or compiling tools to deploy your apps e.g.: `golang:1.18` and `gcc:14`.
+For being able to build both executables, we assign them the right prebuilt docker images that provide you the needed version of your programming language or compiling tools to deploy your apps e.g.: `golang:1.22` and `gcc:14`.
 
 So the build stages are named `go-builder` and `cpp-builder`, which has the purpose of adressability (to copy the binaries/executables) of them later in the run stage.
 
-The run stage is set for running the parser service in Go, yes only for this purpose (as Scoutfish gets executed only on desire). Before we can start the applications in this stage, they need to get copied to the run stage first. Finally we EXPOSE the ports 8080 to the outside world.
-
-The comments in the Dockerfile could also help to understand the context.
+The run stage is set for running the ChessSearchAPI in Go, yes only for this purpose (as Scoutfish gets executed only on desire). Before we can start the applications in this stage, they need to get copied to the run stage first. Finally we EXPOSE the ports 8080 to the outside world.
 
 ## Docker Run
 For building the docker container it's necessary to have docker installed for CLI, you should be able to run ```docker --version```

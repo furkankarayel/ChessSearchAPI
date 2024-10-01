@@ -53,7 +53,7 @@ RUN cd scoutfish/src && \
         make build ARCH=x86-64
 
 
-# Stage 3: Run stage
+# Stage 4: Run stage
 FROM gcc:14
 
 
