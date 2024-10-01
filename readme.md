@@ -1,5 +1,8 @@
 # ChessSearchAPI
-[![chessearchapi.webp](https://i.postimg.cc/XqD9q9T9/chessearchapi.webp)](https://postimg.cc/2Lh1XLj5)
+<a href="https://postimg.cc/2Lh1XLj5">
+  <img src="https://i.postimg.cc/XqD9q9T9/chessearchapi.webp" alt="ChessSearchAPI" width="400"/>
+</a>
+
 ## Description
 This project is a Golang-powered API designed to efficiently query large chess game databases stored in PGN (Portable Game Notation) format. By integrating with powerful chess tools like Scoutfish and Pgn-extract, the API provides a flexible and performant interface for querying games based on various criteria, such as player names, board positions (FEN), or game year. The API is optimized for scalability and precision, making it suitable for chess data analysis, historical research, and other chess-related applications. Development is ongoing, with continuous improvements to extend functionality and performance.
 
