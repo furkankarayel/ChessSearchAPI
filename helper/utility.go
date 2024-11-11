@@ -96,7 +96,7 @@ func ParsePGN(inputData string) ([]PGN, error) {
 	errors := make(chan error, len(games))
 	results := make(chan struct {
 		index int
-		pgn   PGN
+		block PGN
 	}, len(games))
 
 	for i, game := range games {
@@ -129,11 +129,11 @@ func ParsePGN(inputData string) ([]PGN, error) {
 			board := <-boardChan
 
 			// Create PGN struct
-			pgn := CreatePGNStruct(gameMap, board)
+			block := CreatePGNStruct(gameMap, board)
 			results <- struct {
 				index int
-				pgn   PGN
-			}{index: i, pgn: pgn}
+				block PGN
+			}{index: i, block: block}
 		}(i, game)
 	}
 
@@ -145,7 +145,7 @@ func ParsePGN(inputData string) ([]PGN, error) {
 	}()
 
 	for result := range results {
-		pgnList[result.index] = result.pgn
+		pgnList[result.index] = result.block
 	}
 
 	if len(errors) > 0 {
