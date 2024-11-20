@@ -1,156 +1,112 @@
 package helper
 
 import (
+	"bufio"
 	"fmt"
-	"regexp"
 	"strings"
 	"sync"
 )
 
-// PGN represents the structure of a PGN block
 type PGN struct {
-	Event     string `json:"Event"`
-	Site      string `json:"Site"`
-	Date      string `json:"Date"`
-	Round     string `json:"Round"`
-	White     string `json:"White"`
-	Black     string `json:"Black"`
-	Result    string `json:"Result"`
-	ECO       string `json:"ECO"`
-	EventDate string `json:"EventDate"`
-	PlyCount  string `json:"PlyCount"`
-	Source    string `json:"Source"`
-	EventType string `json:"EventType"`
-	Board     string `json:"Board"`
+	Event     string `json:"event"`
+	Site      string `json:"site"`
+	Date      string `json:"date"`
+	Round     string `json:"round"`
+	White     string `json:"white"`
+	Black     string `json:"black"`
+	Result    string `json:"result"`
+	ECO       string `json:"eco"`
+	EventDate string `json:"eventDate"`
+	PlyCount  string `json:"plyCount"`
+	Source    string `json:"source"`
+	EventType string `json:"eventType"`
+	Board     string `json:"board"`
 }
 
-// Precompile the reg ex to avoid recompilation
-var metadataPattern = regexp.MustCompile(`\[([^\s]+) "([^\"]+)"\]`)
+func parsePGNMetadataFromString(pgnData string) (PGN, error) {
+	pgn := PGN{}
+	scanner := bufio.NewScanner(strings.NewReader(pgnData))
+	boardContent := []string{}
 
-// ParseMetadata parses metadata from a PGN block
-func ParseMetadata(game string) map[string]string {
-	matches := metadataPattern.FindAllStringSubmatch(game, -1)
-	gameMap := make(map[string]string, len(matches)) // Initialize with an expected capacity
-	for _, match := range matches {
-		gameMap[match[1]] = match[2]
-	}
-	return gameMap
-}
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
 
-// ParseBoard parses board from a PGN block
-func ParseBoard(game string) string {
-	lines := strings.Split(game, "\n")
-	boardStarted := false
-	var board strings.Builder
-
-	for _, line := range lines {
-		if !boardStarted && strings.HasPrefix(line, "1.") {
-			boardStarted = true
-		}
-		if boardStarted {
-			trimmedLine := strings.TrimSpace(line)
-			if trimmedLine == "" || strings.HasPrefix(trimmedLine, "[") {
+		// Check if this line is part of the metadata
+		if len(line) > 2 && line[0] == '[' && line[len(line)-1] == ']' {
+			content := line[1 : len(line)-1]
+			parts := strings.SplitN(content, " ", 2)
+			if len(parts) < 2 {
 				continue
 			}
-			board.WriteString(trimmedLine)
-			board.WriteString(" ")
+
+			key := parts[0]
+			value := strings.Trim(parts[1], "\"") // Remove quotes around value
+
+			switch key {
+			case "Event":
+				pgn.Event = value
+			case "Site":
+				pgn.Site = value
+			case "Date":
+				pgn.Date = value
+			case "Round":
+				pgn.Round = value
+			case "White":
+				pgn.White = value
+			case "Black":
+				pgn.Black = value
+			case "Result":
+				pgn.Result = value
+			case "ECO":
+				pgn.ECO = value
+			case "EventDate":
+				pgn.EventDate = value
+			case "PlyCount":
+				pgn.PlyCount = value
+			case "Source":
+				pgn.Source = value
+			case "EventType":
+				pgn.EventType = value
+			}
+		} else if line != "" {
+			boardContent = append(boardContent, line)
 		}
 	}
-	return strings.TrimSpace(board.String())
+
+	if err := scanner.Err(); err != nil {
+		return PGN{}, err
+	}
+
+	pgn.Board = strings.Join(boardContent, " ")
+	return pgn, nil
 }
 
-// CreatePGNStruct creates a PGN struct from parsed data
-func CreatePGNStruct(gameMap map[string]string, board string) PGN {
-	return PGN{
-		Event:     gameMap["Event"],
-		Site:      gameMap["Site"],
-		Date:      gameMap["Date"],
-		Round:     gameMap["Round"],
-		White:     gameMap["White"],
-		Black:     gameMap["Black"],
-		Result:    gameMap["Result"],
-		ECO:       gameMap["ECO"],
-		EventDate: gameMap["EventDate"],
-		PlyCount:  gameMap["PlyCount"],
-		Source:    gameMap["Source"],
-		EventType: gameMap["EventType"],
-		Board:     board,
-	}
-}
-
-// ParsePGN parses the entire PGN text and returns a list of PGN structs
-func ParsePGN(inputData string) ([]PGN, error) {
-	var err error
-
-	// Split games based on the occurrence of "[Event "
-	games := strings.Split(inputData, "\n\n[Event ")
-	if len(games) == 0 {
-		err = fmt.Errorf("PGN Parsing failed, no games available")
-	}
-	if len(games[0]) == 0 {
-		games = games[1:]
-	}
+func ProcessPGNGames(pgnGamesString string) ([]PGN, error) {
+	pgnGames := strings.Split(string(pgnGamesString), "\n\n")
 
 	var wg sync.WaitGroup
-	pgnList := make([]PGN, len(games))
-	errors := make(chan error, len(games))
-	results := make(chan struct {
-		index int
-		block PGN
-	}, len(games))
+	resultChannel := make(chan PGN, len(pgnGames))
+	wg.Add(len(pgnGames))
 
-	for i, game := range games {
-		wg.Add(1)
-		go func(i int, game string) {
+	for _, gameData := range pgnGames {
+		go func(data string) {
 			defer wg.Done()
-
-			// Ensure the game string starts with [Event
-			if !strings.HasPrefix(game, "[Event ") {
-				game = "[Event " + game
+			pgn, err := parsePGNMetadataFromString(data)
+			if err == nil {
+				resultChannel <- pgn
+			} else {
+				fmt.Println("Error:", err)
+				return
 			}
-
-			// Channels for results of parsing
-			metadataChan := make(chan map[string]string)
-			boardChan := make(chan string)
-
-			// Both tasks that are executed concurrently starting with go keyword
-			// Parse Metadata
-			go func() {
-				metadataChan <- ParseMetadata(game)
-			}()
-
-			// Parse Board
-			go func() {
-				boardChan <- ParseBoard(game)
-			}()
-
-			// Wait for both parsing operations to complete
-			gameMap := <-metadataChan
-			board := <-boardChan
-
-			// Create PGN struct
-			block := CreatePGNStruct(gameMap, board)
-			results <- struct {
-				index int
-				block PGN
-			}{index: i, block: block}
-		}(i, game)
+		}(gameData)
 	}
 
-	// Here the results
-	go func() {
-		wg.Wait()
-		close(results)
-		close(errors)
-	}()
+	wg.Wait()
+	close(resultChannel)
 
-	for result := range results {
-		pgnList[result.index] = result.block
+	var results []PGN
+	for pgn := range resultChannel {
+		results = append(results, pgn)
 	}
-
-	if len(errors) > 0 {
-		err = <-errors
-	}
-
-	return pgnList, err
+	return results, nil
 }

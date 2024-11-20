@@ -42,7 +42,7 @@ func (u *PgnextracthHandler) searchPlayer(w http.ResponseWriter, r *http.Request
 	}
 
 	if len(output) == 0 {
-		engine.Respond(w, r, http.StatusBadRequest, fmt.Sprintf("Expected to find PGN entries for player with first name '%s', but got none.", playerInput))
+		engine.Respond(w, r, http.StatusBadRequest, fmt.Sprintf("Expected to find PGN entries for player with first name '%s', but got none.", playerName))
 	}
 	engine.Respond(w, r, http.StatusOK, output)
 }

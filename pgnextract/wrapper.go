@@ -102,7 +102,7 @@ func (p *Pgnextract) QueryPlayer(input []byte) ([]helper.PGN, error) {
 	// Pgn-extract is processing commands out of a file and saves the results as file lastOutput
 	_, err = p.Runner.Run(fmt.Sprintf("-t %s", p.CmdFile), p.Pgn, "--output", tempOutputFilename)
 	if err != nil {
-		log.Println("Error finding player:", err)
+		log.Println("Error preparing player search:", err)
 		return nil, err
 	}
 
@@ -111,13 +111,13 @@ func (p *Pgnextract) QueryPlayer(input []byte) ([]helper.PGN, error) {
 	catRunner := helper.NewRunner("cat")
 	readOutput, err := catRunner.Run(tempOutputFilename)
 	if err != nil {
-		log.Println("Error finding player:", err)
+		log.Println("Error getting result of player:", err)
 		return nil, err
 	}
 
-	pgnList, err := helper.ParsePGN(string(readOutput))
+	pgnList, err := helper.ProcessPGNGames(string(readOutput))
 	if err != nil {
-		fmt.Println("Error finding player:", err)
+		fmt.Println("Error processing player games:", err)
 		return nil, err
 	}
 
@@ -167,7 +167,7 @@ func (p *Pgnextract) QueryTwoPlayers(input []byte) ([]helper.PGN, error) {
 		return nil, err
 	}
 
-	pgnList, err := helper.ParsePGN(string(readOutput))
+	pgnList, err := helper.ProcessPGNGames(string(readOutput))
 	if err != nil {
 		fmt.Println("Error finding player:", err)
 		return nil, err
@@ -218,7 +218,7 @@ func (p *Pgnextract) QueryPlayerByYear(input []byte) ([]helper.PGN, error) {
 		return nil, err
 	}
 
-	pgnList, err := helper.ParsePGN(string(readOutput))
+	pgnList, err := helper.ProcessPGNGames(string(readOutput))
 	if err != nil {
 		fmt.Println("Error finding player:", err)
 		return nil, err
@@ -268,7 +268,7 @@ func (p *Pgnextract) QueryFen(input []byte) ([]helper.PGN, error) {
 		return nil, err
 	}
 
-	pgnList, err := helper.ParsePGN(string(readOutput))
+	pgnList, err := helper.ProcessPGNGames(string(readOutput))
 	if err != nil {
 		fmt.Println("Error parsing PGN:", err)
 		return nil, err

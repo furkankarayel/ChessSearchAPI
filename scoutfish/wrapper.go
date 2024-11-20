@@ -112,7 +112,7 @@ func (s *Scoutfish) QueryFen(input []byte) ([]helper.PGN, error) {
 		output.WriteString(game.String() + "\n\n") // Separate games with a double newline
 	}
 
-	pgnList, err := helper.ParsePGN(output.String())
+	pgnList, err := helper.ProcessPGNGames(output.String())
 	if err != nil {
 		fmt.Println("Error parsing PGN:", err)
 		return nil, err
